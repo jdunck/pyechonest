@@ -26,6 +26,13 @@ API_SELECTOR = 'api'
 API_VERSION = 'v4'
 "Version of api to use... only 4 for now"
 
+API_DELAY = 0.5
+"""
+Delay in seconds from last call to this one (useful for respecting API limits.)
+
+Set to 0.0 to remove delay.
+"""
+
 HTTP_USER_AGENT = 'PyEchonest'
 """
 You may change this to be a user agent string of your

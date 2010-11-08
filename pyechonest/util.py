@@ -138,6 +138,7 @@ def codegen(filename, start=0, duration=30):
         return None
 
 
+last_call = 0 #epoch start
 def callm(method, param_dict, POST=False, socket_timeout=None, data=None):
     """
     Call the api! 
@@ -146,8 +147,17 @@ def callm(method, param_dict, POST=False, socket_timeout=None, data=None):
     
     ** note, if we require 2.6, we can get rid of this timeout munging.
     """
+    global last_call
     param_dict['api_key'] = config.ECHO_NEST_API_KEY
     param_list = []
+
+    wait_remaining = config.API_DELAY - (time.time() - last_call)
+    if (wait_remaining > 0):
+        if config.TRACE_API_CALLS:
+            logger.info("sleeping to respect API_DELAY %s" % (wait_remaining,))
+        time.sleep(wait_remaining)
+    last_call = time.time()
+
     if not socket_timeout:
         socket_timeout = config.CALL_TIMEOUT
     
@@ -197,7 +207,6 @@ def callm(method, param_dict, POST=False, socket_timeout=None, data=None):
         """
         url = 'http://%s/%s/%s/%s?%s' % (config.API_HOST, config.API_SELECTOR, config.API_VERSION, 
                                         method, params)
-
         f = opener.open(url)
             
     socket.setdefaulttimeout(None)
