@@ -498,7 +498,7 @@ def top_terms(results=15):
 
 
 def similar(names=None, ids=None, start=0, results=15, buckets=None, limit=False, max_familiarity=None, min_familiarity=None,
-            max_hotttnesss=None, min_hotttnesss=None):
+            max_hotttnesss=None, min_hotttnesss=None, reverse=False):
     """Return similar artists to this one
     
     Args:
@@ -521,6 +521,8 @@ def similar(names=None, ids=None, start=0, results=15, buckets=None, limit=False
         **max_hotttnesss** (float): A float specifying the max hotttnesss of artists to search for
         
         **min_hotttnesss** (float): A float specifying the max hotttnesss of artists to search for
+        
+        **reverse** (bool): A boolean indicating whether or not to reverse the list (i.e. show most dissimilar first)
     
     Returns:
         A list of similar Artist objects
@@ -553,6 +555,8 @@ def similar(names=None, ids=None, start=0, results=15, buckets=None, limit=False
         kwargs['bucket'] = buckets
     if limit:
         kwargs['limit'] = 'true'
+    if reverse:
+        kwargs['reverse'] = 'true'
 
     result = util.callm("%s/%s" % ('artist', 'similar'), kwargs)
     # we need this to fix up all the dict keys to be strings, not unicode objects
