@@ -30,12 +30,20 @@ class ArtistProxy(GenericProxy):
         kwargs = dict((str(k), v) for (k,v) in kwargs.iteritems())
         # the following are integral to all artist objects... the rest is up to you!
         core_attrs = ['name']
-        
         if not all(ca in kwargs for ca in core_attrs):
             profile = self.get_attribute('profile', **{'bucket':buckets})
             kwargs.update(profile.get('artist'))
         [self.__dict__.update({ca:kwargs.pop(ca)}) for ca in core_attrs+['id'] if ca in kwargs]        
         self.cache.update(kwargs)
+        #deal with the API not returning foreign_ids placeholders if unavailable.
+        #  We want to store a sentinel so we don't repeatedly request on cache miss.
+        for bucket in buckets:
+            if bucket.startswith("id:"):
+                idspace = bucket[3:]
+                includes = filter(lambda d: d.get('catalog') == idspace, self.cache.get('foreign_ids', []))
+                if not includes:
+                    self.cache.setdefault('foreign_ids', []).append({u'catalog':idspace, 
+                                                                     u'foreign_id':None})
     
     def get_attribute(self, *args, **kwargs):
         if util.short_regex.match(self.id) or util.long_regex.match(self.id) or util.foreign_regex.match(self.id):
